@@ -44,7 +44,7 @@ PERSONAS = {
     "friendly_guide": {
         "name": "Dr. Ananya Sen",
         "title": "Supportive Internal Guide",
-        "voice": "shreya",
+        "voice": "shreya_hi_conversational",
         "tone": "encouraging, patient, breaks down complex doubts, offers hints when the student struggles, checks core concepts.",
         "avatar": "👩‍🏫"
     },
