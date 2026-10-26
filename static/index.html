@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Viva Voce AI — Academic Oral Examiner for Indian College Labs</title>
+  <meta name="description" content="AI Examiner for Indian college practical and viva exams. Powered by Sarvam AI Indic models for speech, reasoning, and code-mixed transcription.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="dark-theme">
+  <!-- Subtle ambient background glow -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-logo">
+          <span class="logo-icon">???</span>
+        </div>
+        <div class="brand-text">
+          <h1>Viva Voce <span class="badge-ai">AI</span></h1>
+          <p class="tagline">The Adversarial Oral Examiner for College Practical Exams</p>
+        </div>
+      </div>
+      <div class="header-status">
+        <div class="sarvam-badge">
+          <span class="pulse-dot"></span>
+          <span>Powered by <strong>Sarvam AI</strong> Indic Stack</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-content">
+    
+    <!-- STAGE 1: Configuration / Setup Screen -->
+    <section id="setup-stage" class="stage-section active">
+      <div class="section-hero">
+        <div class="pill-announcement">
+          <span class="sparkle">?</span> Tested for VTU, AKTU, Anna Univ, Pharmacy & Polytechnic Lab Syllabi
+        </div>
+        <h2>Prepare for Your Lab Viva with Voice Grilling</h2>
+        <p class="hero-desc">
+          Most students read notes silently and freeze in oral exams. Face the AI examiner out loud in English or code-mixed Hinglish before you face the external professor.
+        </p>
+      </div>
+
+      <!-- Quick Preset Syllabi -->
+      <div class="card-glass preset-card">
+        <div class="card-title-row">
+          <h3><span class="step-num">1</span> Pick a Standard Lab Syllabus or Paste Custom Notes</h3>
+          <span class="badge-subtle">Quick 1-Click Presets</span>
+        </div>
+        <div id="preset-buttons" class="preset-chips">
+          <!-- Populated by JS -->
+        </div>
+
+        <form id="viva-setup-form" class="setup-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="subject-input">Lab Course / Department</label>
+              <input type="text" id="subject-input" required placeholder="e.g. Analog Electronics Lab (EE/ECE)">
+            </div>
+            <div class="form-group">
+              <label for="topic-input">Experiment Title / Topic</label>
+              <input type="text" id="topic-input" required placeholder="e.g. Operational Amplifier 741 Inverting Gain & Slew Rate">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="notes-input">
+              Lab Manual Key Concepts & Formulas
+              <span class="label-hint">(Paste syllabus notes, circuit laws, derivations, or expected viva questions)</span>
+            </label>
+            <textarea id="notes-input" rows="6" required placeholder="Paste formulas, working principle, pin diagram notes, and experimental procedures here..."></textarea>
+          </div>
+
+          <!-- Persona Selector -->
+          <div class="form-group">
+            <label><span class="step-num">2</span> Select Examiner Persona</label>
+            <div id="persona-grid" class="persona-selection-grid">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="start-viva-btn" class="btn btn-primary btn-large">
+              <span class="btn-icon">?</span>
+              <span>Start Oral Examination</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- STAGE 2: Oral Examination Arena -->
+    <section id="arena-stage" class="stage-section">
+      <div class="arena-header">
+        <div class="viva-progress-card">
+          <div class="progress-info">
+            <span class="question-tracker">Question <strong id="current-q-num">1</strong> of <span id="total-q-num">3</span></span>
+            <span id="active-persona-title" class="examiner-label">Prof. R.K. Sharma</span>
+          </div>
+          <div class="progress-bar-track">
+            <div id="viva-progress-fill" class="progress-bar-fill"></div>
+          </div>
+        </div>
+        <button id="abort-viva-btn" class="btn btn-subtle btn-sm">? Exit Exam</button>
+      </div>
+
+      <!-- Examiner Desk -->
+      <div class="card-glass examiner-podium">
+        <div class="examiner-identity">
+          <div id="examiner-avatar" class="examiner-avatar-box">?????</div>
+          <div class="examiner-meta">
+            <h3 id="examiner-name">Prof. R.K. Sharma</h3>
+            <span id="examiner-status-pill" class="status-pill speaking">
+              <span class="sound-wave-bars">
+                <span></span><span></span><span></span><span></span>
+              </span>
+              Examiner Speaking
+            </span>
+          </div>
+          <div class="audio-controls">
+            <button id="replay-audio-btn" class="btn btn-icon-round" title="Replay Professor's Voice">
+              ??
+            </button>
+          </div>
+        </div>
+
+        <div class="question-dialogue-bubble">
+          <div class="bubble-tag">EXAMINER'S QUESTION</div>
+          <p id="question-text" class="question-display-text">
+            Initializing question from your notes...
+          </p>
+        </div>
+      </div>
+
+      <!-- Live Feedback Alert (if previous question was answered) -->
+      <div id="intermediate-feedback" class="feedback-toast hidden">
+        <div class="feedback-badge" id="feedback-badge">Score: 8/10</div>
+        <div class="feedback-text" id="feedback-text">Good explanation of virtual ground.</div>
+        <div class="bluff-chip" id="bluff-chip">No Bluffing Detected</div>
+      </div>
+
+      <!-- Student Answering Console -->
+      <div class="card-glass student-console">
+        <div class="console-header">
+          <h4>Your Spoken Answer</h4>
+          <span class="badge-indic">Hinglish & Regional Speech Supported via Saaras v4</span>
+        </div>
+
+        <!-- Mic Visualizer & Controls -->
+        <div class="audio-input-area">
+          <div class="mic-circle-wrapper">
+            <button id="mic-toggle-btn" class="mic-button" title="Click to Speak Answer">
+              <span class="mic-icon">??</span>
+              <span class="mic-ripple"></span>
+            </button>
+            <p id="mic-status-label" class="mic-caption">Click microphone to speak your answer</p>
+          </div>
+
+          <div class="audio-wave-container">
+            <canvas id="audio-visualizer" width="400" height="60"></canvas>
+          </div>
+        </div>
+
+        <!-- Live / Transcribed Text Display -->
+        <div class="transcription-box">
+          <label for="answer-text-fallback">Recognized Spoken Transcript (or type manually):</label>
+          <textarea id="answer-text-fallback" rows="3" placeholder="Speak your answer, or type here if you cannot use a mic..."></textarea>
+        </div>
+
+        <div class="console-actions">
+          <button id="submit-answer-btn" class="btn btn-success btn-large" disabled>
+            <span class="btn-icon">?</span>
+            <span>Submit Answer to Examiner</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STAGE 3: Final Scorecard & Review -->
+    <section id="scorecard-stage" class="stage-section">
+      <div class="scorecard-hero">
+        <div class="celebration-badge">?? Practical Examination Completed</div>
+        <h2>Academic Viva Voce Scorecard</h2>
+        <p class="scorecard-subtitle">Official Performance Analysis & External Examiner Readiness</p>
+      </div>
+
+      <!-- Score Overview Card -->
+      <div class="card-glass score-summary-card">
+        <div class="score-dial-block">
+          <div class="score-circle">
+            <span id="final-marks-display" class="marks-number">21.5</span>
+            <span class="marks-denom">/ 25</span>
+          </div>
+          <div class="grade-pill" id="grade-display">Grade A</div>
+        </div>
+        <div class="verdict-block">
+          <div class="verdict-label">EXAMINER'S VERDICT</div>
+          <p id="examiner-verdict-text" class="verdict-content">
+            Demonstrated sound conceptual clarity. The answers were factually precise with minimal dodging.
+          </p>
+          <div class="bluff-meter-card">
+            <span class="bluff-label">Bluff Analysis:</span>
+            <span id="overall-bluff-text" class="bluff-detail">Direct conceptual grasp, avoided vague buzzword reciting.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mother Tongue Translation Banner -->
+      <div class="card-glass translation-card">
+        <div class="translation-header">
+          <div class="lang-icon">??</div>
+          <div>
+            <h4>Review Feedback in Your Mother Tongue</h4>
+            <p>Understand your mistakes deeply using Sarvam-Translate across 22 Indian languages.</p>
+          </div>
+        </div>
+        <div class="translation-controls">
+          <select id="target-lang-select" class="lang-dropdown">
+            <option value="hi-IN" selected>Hindi (??????)</option>
+            <option value="ta-IN">Tamil (?????)</option>
+            <option value="te-IN">Telugu (??????)</option>
+            <option value="mr-IN">Marathi (?????)</option>
+            <option value="bn-IN">Bengali (?????)</option>
+            <option value="gu-IN">Gujarati (???????)</option>
+            <option value="kn-IN">Kannada (?????)</option>
+            <option value="ml-IN">Malayalam (??????)</option>
+            <option value="pa-IN">Punjabi (??????)</option>
+          </select>
+          <button id="translate-report-btn" class="btn btn-secondary">
+            Translate Feedback
+          </button>
+        </div>
+        <div id="translated-box" class="translated-content-box hidden">
+          <div class="translated-label">TRANSLATED VERDICT & ADVICE</div>
+          <p id="translated-text-display"></p>
+        </div>
+      </div>
+
+      <!-- Strengths and Revision Topics Grid -->
+      <div class="scorecard-grid">
+        <div class="card-glass review-column">
+          <h4 class="col-title success-title">? What You Handled Well</h4>
+          <ul id="strengths-list" class="review-bullets">
+            <!-- Populated by JS -->
+          </ul>
+        </div>
+
+        <div class="card-glass review-column">
+          <h4 class="col-title warning-title">?? High-Yield Revision Topics</h4>
+          <p class="col-hint">Review these before the external professor arrives:</p>
+          <ul id="revision-list" class="review-bullets warning-bullets">
+            <!-- Populated by JS -->
+          </ul>
+        </div>
+      </div>
+
+      <!-- Round-by-Round Breakdown -->
+      <div class="card-glass round-breakdown-card">
+        <h3>Question-by-Question Interrogation Record</h3>
+        <div id="round-history-list" class="rounds-container">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Reset / Retake Button -->
+      <div class="scorecard-actions">
+        <button id="restart-viva-btn" class="btn btn-primary btn-large">
+          ?? Practice Another Lab Experiment
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Audio element for playback -->
+  <audio id="viva-audio-player" style="display:none;"></audio>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-content">
+      <p>Built with <strong>Sarvam AI</strong>: Sarvam-105B (Reasoning), Bulbul v4 Flash (TTS), Saaras v4 (Code-mixed ASR), Sarvam-Translate (22 Languages).</p>
+      <p class="copyright">Viva Voce AI • Engineered for Indian Higher Education</p>
+    </div>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
