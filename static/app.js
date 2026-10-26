@@ -92,7 +92,7 @@ function renderPresets() {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = `preset-btn ${idx === 0 ? "active" : ""}`;
-    btn.innerHTML = `<span>???</span> <span>${p.subject.split("(")[0].trim()}</span>`;
+    btn.innerHTML = `<span>📚</span> <span>${p.subject.split("(")[0].trim()}</span>`;
     btn.onclick = () => selectPreset(p, btn);
     presetContainer.appendChild(btn);
   });
@@ -183,7 +183,7 @@ function setupEventListeners() {
 
 async function startVivaSession() {
   startVivaBtn.disabled = true;
-  startVivaBtn.innerHTML = `<span>?</span> <span>Generating Examiner & First Question...</span>`;
+  startVivaBtn.innerHTML = `<span>📚</span> <span>Generating Examiner & First Question...</span>`;
 
   const formData = new FormData();
   formData.append("subject", subjectInput.value.trim());
@@ -376,7 +376,7 @@ async function submitAnswer() {
   if (!currentSessionId) return;
 
   submitAnswerBtn.disabled = true;
-  submitAnswerBtn.innerHTML = `<span>?</span> <span>Examiner Evaluating Response (Sarvam AI)...</span>`;
+  submitAnswerBtn.innerHTML = `<span>📚</span> <span>Examiner Evaluating Response (Sarvam AI)...</span>`;
 
   const formData = new FormData();
   formData.append("session_id", currentSessionId);
@@ -435,10 +435,10 @@ function showIntermediateFeedback(data) {
   feedbackText.textContent = data.last_feedback;
 
   if (data.bluff_detected) {
-    bluffChip.textContent = "??? Hand-waving / Bluff Detected";
+    bluffChip.textContent = "⚠️ Hand-waving / Bluff Detected";
     bluffChip.classList.add("warning");
   } else {
-    bluffChip.textContent = "? Direct Answer";
+    bluffChip.textContent = "✓ Direct Answer";
     bluffChip.classList.remove("warning");
   }
 

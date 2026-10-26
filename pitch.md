@@ -1,9 +1,9 @@
-# ??? 5-Minute Demo Pitch: VivaPrep AI
+# 🏛️ 5-Minute Demo Pitch: VivaPrep AI
 ### *The Adversarial Oral Examiner for College Practical Exams*
 
 ---
 
-## ??? Pitch Timeline Breakdown (5 Minutes)
+## ⏱️ Pitch Timeline Breakdown (5 Minutes)
 
 ### [0:00 - 1:00] The Hook & The Real Problem
 > *"Raise your hand if you’ve ever sat in an engineering, pharmacy, or B.Sc lab, read your lab manual 10 times, thought you were ready, and then sat in front of the external examiner and completely froze."*
