@@ -1,6 +1,6 @@
-# ??? Viva Voce AI — The Adversarial Academic Oral Examiner
+# ??? Viva Voce AI â€” The Adversarial Academic Oral Examiner
 
-> **Built with Sarvam AI's Full Indic Stack** — Sarvam-105B (Reasoning), Bulbul v4 Flash (TTS), Saaras v4 (Code-mixed ASR), and Sarvam-Translate (22 Languages).
+> **Built with Sarvam AI's Full Indic Stack** â€” Sarvam-105B (Reasoning), Bulbul v4 Flash (TTS), Saaras v4 (Code-mixed ASR), and Sarvam-Translate (22 Languages).
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Sarvam AI](https://img.shields.io/badge/Powered%20by-Sarvam%20AI-00f0ff.svg)](https://docs.sarvam.ai)
@@ -99,6 +99,9 @@ Open [http://localhost:8000](http://localhost:8000) in your browser.
 ---
 
 ## ?? Deployment
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ard714/viva-voce-ai)
+
 
 ### Deploy to Render
 1. Push to GitHub.
