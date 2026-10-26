@@ -1,6 +1,7 @@
 # 🏛️ VivaPrep AI — The AI External Examiner for Practical Vivas
 
-> **Built with Sarvam AI's Full Indic Stack** — Sarvam-105B (Reasoning), Bulbul v4 Flash (TTS), Saaras v4 (Code-mixed ASR), and Sarvam-Translate (22 Languages).
+> **Live Production App**: [https://viva-voce-ai.onrender.com/](https://viva-voce-ai.onrender.com/)  
+> **Built with Sarvam AI's Full Indic Stack** — Sarvam-105B (Reasoning & Evaluation), Bulbul v4 Flash (TTS), Saaras v4 (Code-mixed ASR), and Sarvam-Translate (22 Languages).
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Render-00f0ff.svg)](https://viva-voce-ai.onrender.com/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
@@ -11,16 +12,16 @@
 ---
 
 ## 📌 The Problem
-In Indian universities (VTU, AKTU, Anna University, Mumbai University, polytechnics, pharmacy, and science colleges), **practical lab vivas carry up to 40% of lab marks**.
+In Indian universities (VTU, AKTU, Anna University, Mumbai University, polytechnics, pharmacy, and science colleges), **practical lab vivas carry up to 40% of total lab marks**.
 
 Students memorize notes silently, but **freeze** when an external examiner asks questions aloud. Furthermore, students think in their mother tongue and answer in **code-mixed Hinglish / Tanglish** (e.g., *"Sir, actually jab frequency increase hoti hai, capacitor short behave karta hai"*). Traditional interview bots fail because they only understand corporate English and don't simulate the adversarial grilling of an external university professor.
 
 ## 💡 The Solution
 **VivaPrep AI** is an adversarial oral examiner powered by Sarvam AI:
-1. **Pasted Lab Notes / Syllabus**: Input any experiment aim, apparatus notes, or formula derivations.
+1. **Lab Notes / Syllabus Ingestion**: Input any experiment aim, apparatus notes, or formula derivations (or pick a 1-click preset for EE, CS, Mech, or Pharmacy).
 2. **Examiner Spoken Questioning**: The examiner speaks aloud with Indian professor voice personas via **Bulbul v4 Flash**.
-3. **Student Spoken Answers**: Students speak naturally into the microphone. **Saaras v4** transcribes code-mixed speech with Indian accents.
-4. **Adversarial Evaluation & Bluff Buster**: **Sarvam-105B** detects hand-waving, catches missing units/formulas, and drills into weak spots.
+3. **Student Spoken Answers**: Students speak naturally into the microphone. **Saaras v4** transcribes code-mixed speech with Indian accents without phonetic degradation.
+4. **Adversarial Evaluation & Bluff Buster**: **Sarvam-105B** evaluates conceptual depth, catches missing units/formulas, detects hand-waving/bluffing, and drills into weak spots.
 5. **Scorecard & Regional Translation**: Generates an official score out of 25 (Theory, Intuition, Precision), revision recommendations, and translates the entire feedback into **22 Indian languages** via **Sarvam-Translate**.
 
 ---
@@ -29,7 +30,7 @@ Students memorize notes silently, but **freeze** when an external examiner asks 
 
 ```
 +---------------------------------------------------------------------------------+
-|                                 VIVA VOCE AI                                    |
+|                                 VIVAPREP AI                                     |
 +---------------------------------------------------------------------------------+
           |
           | 1. Lab Notes / Syllabus Preset
@@ -42,7 +43,7 @@ Students memorize notes silently, but **freeze** when an external examiner asks 
 |                             |                                             |
 |                             |                                             v (Audio)
 |                             |                                    +-----------------+
-|                             |       4. Student Answer (Audio)   | Browser Arena   |
+|                             |       4. Student Answer (Audio)    | Browser Arena   |
 |                             | <----------------------------------| (Web Audio API) |
 |                             |                                    +-----------------+
 |                             |       5. Code-Mixed Transcription
@@ -76,8 +77,8 @@ Students memorize notes silently, but **freeze** when an external examiner asks 
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/ard714/Sarvam_vivavoce.git
-cd Sarvam_vivavoce
+git clone https://github.com/ard714/viva-voce-ai.git
+cd viva-voce-ai
 ```
 
 ### 2. Install Dependencies
@@ -101,19 +102,16 @@ Open [http://localhost:8000](http://localhost:8000) in your browser.
 
 ## 🚢 Deployment
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ard714/Sarvam_vivavoce)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ard714/viva-voce-ai)
 
-
-### Deploy to Render
-1. Push to GitHub.
-2. Create a new Web Service on [Render](https://render.com).
-3. Connect your GitHub repository. Render automatically reads `render.yaml`.
-4. Add environment variable `SARVAM_API_KEY`.
+### Production URL
+The app is live and deployed on Render:
+**[https://viva-voce-ai.onrender.com/](https://viva-voce-ai.onrender.com/)**
 
 ### Deploy with Docker
 ```bash
-docker build -t Sarvam_vivavoce .
-docker run -p 8000:8000 -e SARVAM_API_KEY=your_key Sarvam_vivavoce
+docker build -t vivaprep-ai .
+docker run -p 8000:8000 -e SARVAM_API_KEY=your_key vivaprep-ai
 ```
 
 ---

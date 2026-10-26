@@ -1,5 +1,8 @@
 # 🏛️ 5-Minute Demo Pitch: VivaPrep AI
-### *The Adversarial Oral Examiner for College Practical Exams*
+### *The AI External Examiner for College Practical Vivas*
+
+> **Live Production Demo**: [https://viva-voce-ai.onrender.com/](https://viva-voce-ai.onrender.com/)  
+> **GitHub Repository**: [https://github.com/ard714/viva-voce-ai](https://github.com/ard714/viva-voce-ai)
 
 ---
 
@@ -24,7 +27,7 @@
 ---
 
 ## [1:45 - 3:00] The Live Demo (Show, Don't Just Tell)
-*(Switch screen to the live app at localhost:8000)*
+*(Switch screen to the live production app at https://viva-voce-ai.onrender.com/)*
 
 1. **Step 1: Input the Lab Syllabus**
    - *"Let's select a classic: Analog Electronics — Op-Amp Inverting Gain & Slew Rate. We also choose our examiner: Prof. R.K. Sharma, the Strict External Examiner."*

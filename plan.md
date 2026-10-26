@@ -1,6 +1,8 @@
-# VivaPrep AI: AI Oral Examiner
+# 🏛️ VivaPrep AI — AI External Examiner for Practical Vivas
 ### Project Plan & Technical Specification
 
+> **Live Production Application**: [https://viva-voce-ai.onrender.com/](https://viva-voce-ai.onrender.com/)  
+> **GitHub Repository**: [https://github.com/ard714/viva-voce-ai](https://github.com/ard714/viva-voce-ai)  
 > **Mission**: Build an AI-powered adversarial oral examiner that helps Indian college students prepare for practical and laboratory viva exams by testing spoken understanding, probing weak answers, and handling code-mixed (Hinglish/regional) speech.
 
 ---
@@ -27,26 +29,25 @@ In Indian universities (VTU, AKTU, Anna University, Mumbai University, polytechn
 ```mermaid
 flowchart TD
     subgraph Ingestion["1. Ingestion Phase"]
-        A[Lab Manual / Notes / Syllabus] --> B[Sarvam Vision OCR]
-        B --> C[Topic & Experiment Summary]
+        A[Lab Manual / Notes / Syllabus Preset] --> B[Topic & Experiment Summary]
     end
 
     subgraph ExamLoop["2. Viva Interrogation Loop (3-5 Rounds)"]
-        C --> D[sarvam-105b: Generate Conceptual Question]
-        D --> E[Bulbul v4 Flash: Synthesize Examiner Speech]
-        E --> F[Student Speaks Answer via Web Audio]
-        F --> G[Saaras v4: Code-Mixed Speech-to-Text]
-        G --> H[sarvam-105b-conversations: Evaluate & Bluff Detection]
-        H -->|Weak / Incomplete Answer| I[Adversarial Follow-up Drill]
-        H -->|Strong Answer| J[Advance to Next Experiment Aspect]
-        I --> E
-        J --> E
+        B --> C[sarvam-105b: Generate Conceptual Question]
+        C --> D[Bulbul v4 Flash: Synthesize Examiner Speech]
+        D --> E[Student Speaks Answer via Web Audio]
+        E --> F[Saaras v4: Code-Mixed Speech-to-Text]
+        F --> G[sarvam-105b-conversations: Evaluate & Bluff Detection]
+        G -->|Weak / Incomplete Answer| H[Adversarial Follow-up Drill]
+        G -->|Strong Answer| I[Advance to Next Experiment Aspect]
+        H --> D
+        I --> D
     end
 
     subgraph Evaluation["3. Feedback & Scorecard"]
-        H --> K[Viva Scorecard: Marks out of 25]
-        K --> L[High-Yield Revision Points]
-        L --> M[Sarvam-Translate: Mother-Tongue Explanation]
+        G --> J[Viva Scorecard: Marks out of 25]
+        J --> K[High-Yield Revision Points]
+        K --> L[Sarvam-Translate: Mother-Tongue Explanation]
     end
 ```
 
@@ -54,23 +55,22 @@ flowchart TD
 
 | Component | Sarvam Model ID | Modality | Role |
 | :--- | :--- | :--- | :--- |
-| **Notes / PDF Ingestion** | `Sarvam Vision` | Image/PDF $\to$ Text | Reads xeroxed notes, handwritten lab journals, and textbook diagrams in 23 languages. |
-| **Examiner Logic & Grading** | `sarvam-105b` | Text $\to$ Text | Deep reasoning, fact-checking against syllabus notes, detecting student bluffing. |
-| **Conversational Flow** | `sarvam-105b-conversations` | Text $\to$ Text | Real-time, responsive multi-turn dialogue with low latency. |
-| **Examiner Voice** | `Bulbul v4 Flash` | Text $\to$ Audio | High-speed, natural prosody with realistic Indian English and Hindi-accented teacher voices. |
-| **Student Speech-to-Text** | `Saaras v4` | Audio $\to$ Text | 23-language ASR with `mode="codemix"` to accurately transcribe Hinglish, Tanglish, etc. |
-| **Regional Explanations** | `Sarvam-Translate` | Text $\to$ Text | Translates complex feedback and model answers into student's home language (22 Indian languages). |
+| **Examiner Logic & Grading** | `sarvam-105b` | Text → Text | Deep reasoning, fact-checking against syllabus notes, detecting student bluffing. |
+| **Conversational Flow** | `sarvam-105b-conversations` | Text → Text | Real-time, responsive multi-turn dialogue with low latency. |
+| **Examiner Voice** | `bulbul:v4-flash` | Text → Audio | High-speed, natural prosody with realistic Indian English and Hindi-accented teacher voices (`ratan_hi_documentary`, `shreya`, `kabir`). |
+| **Student Speech-to-Text** | `saaras:v4` | Audio → Text | 23-language ASR with `mode="codemix"` to accurately transcribe Hinglish, Tanglish, etc. |
+| **Regional Explanations** | `sarvam-translate:v1` | Text → Text | Translates complex feedback and model answers into student's home language (22 Indian languages). |
 
 ---
 
 ## 3. Product Features & User Experience
 
 ### A. Examiner Personas
-- **Prof. Sharma (The Strict External)**:
+- **Prof. R.K. Sharma (The Strict External)**:
   - Highly critical, demands precise units, cuts off rambling, asks *"Don't recite book lines, explain the physical intuition."*
-- **Dr. Ananya (The Supportive Guide)**:
+- **Dr. Ananya Sen (The Supportive Guide)**:
   - Patient, gives hints when the student freezes, asks guided step-by-step questions.
-- **The Rapid-Fire Formula Grill**:
+- **Dr. Kabir Rao (The Rapid-Fire Formula Grill)**:
   - Fast-paced 15-second timer per question testing constants, pin diagrams, and unit conversions.
 
 ### B. The Viva Interaction Loop
@@ -85,42 +85,45 @@ flowchart TD
 - **Bluff Meter**: Highlights answers where buzzwords were used without explaining underlying principles.
 - **Caught Out Points**: Specific concepts where the external examiner would have deducted marks.
 - **Cheat Sheet**: 3 bullet-point model answers for missed questions.
-- **Audio Replay & Pronunciation**: Audio breakdown of difficult technical terms.
+- **Regional Translation**: One-click feedback translation into Hindi, Tamil, Telugu, Marathi, Bengali, etc.
 
 ---
 
 ## 4. Technical Stack
 
 - **Backend**: Python 3.13 + FastAPI + Uvicorn.
-  - SDK: `sarvamai` (Chat, Speech-to-Text, Text-to-Speech, Vision).
+  - SDK: `sarvamai` (Chat, Speech-to-Text, Text-to-Speech, Translation).
   - Environment: Managed through `.env` (`SARVAM_API_KEY`).
-  - Session Store: In-memory dictionary / SQLite session cache (no complex DB needed for MVP).
+  - Session Store: In-memory dictionary / session cache.
 - **Frontend**: Clean Vanilla HTML5 / Modern CSS / Vanilla JavaScript.
-  - Audio capture: Native `MediaRecorder` API (recording in 16kHz PCM/WAV or WebM).
+  - Audio capture: Native `MediaRecorder` API (recording in 16kHz WebM).
   - Audio playback: Native HTML5 Audio element.
   - Glassmorphic, dark-mode academic terminal theme.
+- **Deployment**: Live on Render (`https://viva-voce-ai.onrender.com/`).
 
 ---
 
 ## 5. Development Roadmap & Milestones
 
-### Phase 1: MVP Core Voice Loop (1-2 Days)
+### Phase 1: MVP Core Voice Loop — [x] COMPLETED & SHIPPED
 - [x] Environment & SDK configured with active API key.
 - [x] Verified chat completion with `sarvam-105b-conversations`.
-- [ ] Implement backend endpoint `/api/start-viva` (generates question 1 from pasted notes).
-- [ ] Implement backend endpoint `/api/submit-answer` (transcribes student audio with `Saaras v4`, evaluates with `sarvam-105b`, generates next question and audio with `Bulbul v4 Flash`).
-- [ ] Simple web UI with mic button and audio player.
+- [x] Implemented backend endpoint `/api/init` (generates question 1 from notes with audio).
+- [x] Implemented backend endpoint `/api/answer` (transcribes student audio with `Saaras v4`, evaluates with `sarvam-105b`, generates next question and audio with `Bulbul v4 Flash`).
+- [x] Web UI with microphone recording, visualizer canvas, and audio playback.
 
-### Phase 2: Examiner Personas & Scoring Engine (2-3 Days)
-- [ ] Add system prompts for "Strict External", "Helpful Guide", and "Rapid Fire".
-- [ ] Add structured JSON evaluation schema (Score, Factuality, Bluffing Detected, Follow-up Strategy).
-- [ ] Generate downloadable Markdown Viva Scorecard.
+### Phase 2: Examiner Personas & Scoring Engine — [x] COMPLETED & SHIPPED
+- [x] Added system prompts for 3 distinct personas (Prof. Sharma, Dr. Ananya, Dr. Kabir).
+- [x] Structured JSON evaluation schema (Score, Factuality, Bluffing Detected, Follow-up Strategy).
+- [x] Academic Viva Scorecard (/25 scale) with strengths, revision recommendations, and round breakdown.
+- [x] Multi-lingual feedback translation powered by `Sarvam-Translate`.
+- [x] Production deployment on Render at `https://viva-voce-ai.onrender.com/`.
 
-### Phase 3: Lab Manual OCR & Regional Translation (3-4 Days)
-- [ ] Add PDF / Image drag-and-drop for lab manuals using `Sarvam Vision`.
-- [ ] Add "Explain in My Language" button using `Sarvam-Translate`.
+### Phase 3: Lab Manual OCR & Vision Ingestion — Next Horizon
+- [ ] Drag-and-drop PDF / Image upload for handwritten lab journals using `Sarvam Vision`.
+- [ ] Export downloadable PDF scorecard report.
 
-### Phase 4: Phone Call Mode (Stretch / Future)
+### Phase 4: Telephony Voice Agent Integration — Future Horizon
 - [ ] Connect with Sarvam Voice Agents (`Samvaad`) for phone-dial-in viva drills.
 
 ---
