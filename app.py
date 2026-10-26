@@ -107,6 +107,55 @@ Key Concepts:
     }
 ]
 
+
+def is_gibberish(text: str) -> bool:
+    """Detect keyboard mashing, repeated chars, keyboard walks, or pure nonsense."""
+    clean = text.strip().lower()
+    if not clean or clean.startswith("(student was silent"):
+        return True
+    if len(clean) < 4:
+        return True
+    
+    import re
+    # Check 3 identical consecutive characters
+    if re.search(r"(.)\1\1", clean):
+        return True
+        
+    # Check keyboard walk substrings
+    kb_walks = ["qwerty", "asdf", "zxcv", "dfgh", "hjkl", "cvbn", "yuiop", "ghjkl"]
+    if any(k in clean for k in kb_walks):
+        return True
+        
+    # Check consonant clusters of 5+ (e.g. sdfghjkl, zxcvbnm)
+    if re.search(r"[bcdfghjklmnpqrstvwxyz]{5,}", clean):
+        if not any(w in clean for w in ["strength", "catchphrase"]):
+            return True
+            
+    words = [w for w in re.findall(r"[a-zA-Z]+", clean)]
+    if not words:
+        if not any('\u0900' <= c <= '\u097f' for c in clean):
+            return True
+        return False
+        
+    # Single word repeated e.g. 'blah blah blah' or 'asdf asdf'
+    if len(words) > 1 and len(set(words)) == 1:
+        return True
+        
+    # Check vowel ratio for Latin words
+    letters = ''.join(words)
+    if len(letters) >= 5:
+        vowels = sum(1 for c in letters if c in 'aeiou')
+        ratio = vowels / len(letters)
+        if ratio < 0.18 or ratio > 0.85:
+            return True
+            
+    # Common slang/dismissals
+    slang = {'idk', 'lol', 'dunno', 'asdf', 'qwerty', 'xyz', 'nah', 'nope', 'nothing', 'pass', 'dk', 'idc', 'wat'}
+    if any(w in slang for w in words):
+        return True
+        
+    return False
+
 def synthesize_speech(text: str, voice_name: str = "ratan_hi_documentary", lang: str = "en-IN") -> str:
     """Generate audio via Sarvam Bulbul v4 Flash and return base64 string."""
     try:
@@ -165,7 +214,10 @@ Keep your response short (max 2-3 sentences total) because this will be spoken o
             temperature=0.7,
             max_tokens=150
         )
-        first_q = response.choices[0].message.content.strip()
+        raw_q = response.choices[0].message.content.strip()
+        if "</think>" in raw_q:
+            raw_q = raw_q.split("</think>")[-1].strip()
+        first_q = raw_q
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Sarvam LLM Error: {str(e)}")
 
@@ -231,7 +283,10 @@ async def submit_answer(
     last_question = session["history"][-2]["content"]
     q_idx = session["current_question_index"]
     total_q = session["total_questions"]
-    is_last = (q_idx >= total_q)
+    MAX_QUESTIONS = 6
+
+    # Detect gibberish programmatically
+    gibberish_flag = is_gibberish(student_answer)
 
     # Evaluation & Next Step Prompt
     eval_prompt = f"""You are {persona['name']}, evaluating a student's oral answer in a viva exam.
@@ -241,30 +296,40 @@ Notes context:
 Question Asked: {last_question}
 Student's Spoken Answer (transcribed, may be Hinglish or English): "{student_answer}"
 
-Evaluate this answer rigorously:
-1. 'score': integer from 0 to 10 (10 = fully accurate physical intuition + formula, 5 = partial/vague, 0-2 = wrong or pure bluff).
-2. 'bluff_detected': boolean (true if student used buzzwords or hand-waving without explaining actual concepts).
-3. 'feedback': 1-2 concise sentences on what was correct and what key fact was missing.
-4. 'next_action': {"'finish'" if is_last else "'follow_up'"}.
-5. 'next_question': {"''" if is_last else "your next viva question. If the student gave a weak/bluffing answer, interrogate that specific flaw. If strong, advance to the next critical lab concept. Keep it 2 sentences max for spoken audio."}
+Rigorous Evaluation Instructions:
+1. 'score': Integer from 0 to 10.
+   - 0 to 1: Gibberish, keyboard mash, random words, silence, irrelevant joke, evasion, or completely wrong.
+   - 2 to 4: Heavy bluffing, hand-waving buzzwords without principles, or major factual error.
+   - 5 to 7: Partially correct intuition, but missed formulas, units, or derivation.
+   - 8 to 10: Accurate, articulate explanation with exact principles and equations.
+2. 'bluff_detected': boolean (true if student used buzzwords or hand-waving without explaining actual concepts, or spoke gibberish).
+3. 'is_satisfied': boolean (true ONLY if the student demonstrated genuine understanding. If weak, evasive, bluffing, or wrong, must be false).
+4. 'feedback': 1-2 concise sentences on what was correct and what was missing.
+5. 'next_question': Your next question. If unsatisfied, drill into their specific flaw or ask an extra fundamental question. (Max 2 sentences for audio).
 
 Respond ONLY with valid JSON in this exact structure:
 {{
-  "score": 7,
-  "bluff_detected": false,
-  "bluff_comment": "Student answered accurately without dodging.",
-  "feedback": "Correct definition of slew rate, but missed stating the typical value for IC 741.",
-  "next_question": "What happens to the output waveform if the input frequency exceeds the slew rate limit?"
+  "score": 0,
+  "bluff_detected": true,
+  "is_satisfied": false,
+  "bluff_comment": "Gibberish or evasion detected.",
+  "feedback": "No technical explanation provided.",
+  "next_question": "State the exact formula and working principle of this experiment."
 }}"""
 
     try:
         response = client.chat.completions(
-            model="sarvam-105b",
+            model="sarvam-105b-conversations",
             messages=[{"role": "user", "content": eval_prompt}],
-            temperature=0.3,
+            temperature=0.2,
             max_tokens=300
         )
-        content = response.choices[0].message.content.strip()
+        msg = response.choices[0].message if response.choices else None
+        content = (msg.content or "").strip() if msg else ""
+        if not content:
+            raise ValueError("Empty or None content returned from LLM")
+        if "</think>" in content:
+            content = content.split("</think>")[-1].strip()
         if content.startswith("```json"):
             content = content[7:]
         if content.startswith("```"):
@@ -274,27 +339,65 @@ Respond ONLY with valid JSON in this exact structure:
         
         eval_data = json.loads(content.strip())
     except Exception as e:
-        # Fallback evaluation
-        eval_data = {
-            "score": 6,
-            "bluff_detected": False,
-            "bluff_comment": "Evaluated based on student input.",
-            "feedback": "Concept addressed. Practice stating the exact formulas and units.",
-            "next_question": "Explain the practical sources of error in this experiment."
-        }
+        # Fallback evaluation - respect gibberish flag and short weak answers
+        if gibberish_flag or len(student_answer) < 25:
+            eval_data = {
+                "score": 0,
+                "bluff_detected": True,
+                "is_satisfied": False,
+                "bluff_comment": "Incoherent or evasive answer detected.",
+                "feedback": "Zero credit. Incoherent response or evasive answer. The examiner requires exact scientific principles.",
+                "next_question": "You are not answering the science. State the primary formula and working law of this experiment clearly."
+            }
+        else:
+            eval_data = {
+                "score": 3,
+                "bluff_detected": False,
+                "is_satisfied": False,
+                "bluff_comment": "Evaluated based on student input.",
+                "feedback": "Concept partially addressed. Practice stating exact formulas and units.",
+                "next_question": "Explain the practical sources of error in this experiment."
+            }
+
+    # If programmatic gibberish was detected, strictly force 0 score
+    if gibberish_flag:
+        eval_data["score"] = 0
+        eval_data["bluff_detected"] = True
+        eval_data["is_satisfied"] = False
+        eval_data["feedback"] = "Zero credit. Incoherent response or gibberish. The examiner requires exact scientific principles."
+
+    score = int(eval_data.get("score", 0))
+    # Enforce satisfaction boundary: any score < 6 cannot be considered satisfied
+    is_satisfied = bool(eval_data.get("is_satisfied", False)) and (score >= 6)
 
     session["evaluations"].append({
         "question_number": q_idx,
         "question": last_question,
         "student_answer": student_answer,
-        "score": eval_data.get("score", 5),
+        "score": score,
+        "is_satisfied": is_satisfied,
         "bluff_detected": eval_data.get("bluff_detected", False),
         "bluff_comment": eval_data.get("bluff_comment", ""),
         "feedback": eval_data.get("feedback", "")
     })
 
+    # DYNAMIC VIVA CONTINUATION:
+    # If examiner is not satisfied, they ask more and more questions (up to MAX_QUESTIONS)
+    if not is_satisfied and q_idx < MAX_QUESTIONS:
+        is_last = False
+        if q_idx >= total_q:
+            session["total_questions"] = q_idx + 1
+            total_q = session["total_questions"]
+    else:
+        is_last = (q_idx >= total_q)
+
     if not is_last:
-        next_q = eval_data.get("next_question", "Explain the sources of experimental error in this setup.")
+        next_q = eval_data.get("next_question", "Explain the primary formula and working principle.")
+        
+        # Add authoritative examiner dissatisfaction note if extra question
+        if not is_satisfied and q_idx >= 3:
+            next_q = f"I am not satisfied with your explanation. Let me drill deeper: {next_q}"
+
         session["current_question_index"] += 1
         session["history"].append({"role": "assistant", "content": next_q})
 
@@ -304,49 +407,71 @@ Respond ONLY with valid JSON in this exact structure:
             "status": "ongoing",
             "session_id": session_id,
             "question_number": session["current_question_index"],
-            "total_questions": total_q,
+            "total_questions": session["total_questions"],
             "transcribed_text": student_answer,
             "last_feedback": eval_data.get("feedback", ""),
             "bluff_detected": eval_data.get("bluff_detected", False),
-            "score": eval_data.get("score", 5),
+            "is_satisfied": is_satisfied,
+            "score": score,
             "next_question_text": next_q,
             "audio_base64": audio_b64
         }
     else:
         # Generate Final Viva Scorecard
         scores = [e["score"] for e in session["evaluations"]]
-        avg_score = sum(scores) / len(scores) if scores else 5
-        # Total out of 25 (Standard Indian practical exam scale)
+        avg_score = sum(scores) / len(scores) if scores else 0.0
         final_marks = round((avg_score / 10.0) * 25, 1)
 
+        # Cap marks strictly if student submitted gibberish/bluffs
+        if all(e["score"] <= 2 for e in session["evaluations"]):
+            final_marks = min(final_marks, 2.0)
+        elif avg_score < 4.0:
+            final_marks = min(final_marks, 8.0)
+
+        # Calculate grade
+        if final_marks >= 22:
+            calc_grade = "A+"
+        elif final_marks >= 18:
+            calc_grade = "A"
+        elif final_marks >= 14:
+            calc_grade = "B"
+        elif final_marks >= 10:
+            calc_grade = "C"
+        else:
+            calc_grade = "F"
+
         summary_prompt = f"""You are {persona['name']}. The viva exam for {session['subject']} has concluded.
-Student's performance record:
+Student's performance record across {len(session['evaluations'])} questions:
 {json.dumps(session['evaluations'], indent=2)}
 
+Final Score: {final_marks} / 25 marks. Grade: {calc_grade}.
+
 Generate a final Academic Viva Report:
-1. 'grade': Letter grade (A+, A, B, C, F)
-2. 'examiner_verdict': 2 sentences in character summarizing readiness for external practical exam.
-3. 'strengths': list of 2 key strengths.
+1. 'grade': "{calc_grade}"
+2. 'examiner_verdict': 2 sentences in character summarizing readiness for external practical exam. If score is low, state why they failed or struggled.
+3. 'strengths': list of 1-2 points (or note 'None observed' if answers were gibberish).
 4. 'revision_topics': list of 3 high-yield topics the student MUST revise before facing the external professor.
-5. 'bluff_analysis': 1 sentence on the student's communication clarity vs hand-waving.
+5. 'bluff_analysis': 1 sentence on the student's communication clarity vs dodging/gibberish.
 
 Respond ONLY with valid JSON in this exact structure:
 {{
-  "grade": "A",
-  "examiner_verdict": "Demonstrated sound understanding of core formulas, but needs to be faster on derivations.",
-  "strengths": ["Clear understanding of virtual ground", "Accurately recalled gain equation"],
-  "revision_topics": ["Slew rate distortion graph", "CMRR calculation steps", "Frequency response curve"],
-  "bluff_analysis": "Direct answers with minimal dodging."
+  "grade": "{calc_grade}",
+  "examiner_verdict": "Demonstrated sound understanding of core formulas.",
+  "strengths": ["Understanding of core principle"],
+  "revision_topics": ["Key derivations", "Apparatus error", "Unit conversions"],
+  "bluff_analysis": "Direct answers."
 }}"""
 
         try:
             report_res = client.chat.completions(
-                model="sarvam-105b",
+                model="sarvam-105b-conversations",
                 messages=[{"role": "user", "content": summary_prompt}],
-                temperature=0.3,
+                temperature=0.2,
                 max_tokens=400
             )
             raw = report_res.choices[0].message.content.strip()
+            if "</think>" in raw:
+                raw = raw.split("</think>")[-1].strip()
             if raw.startswith("```json"):
                 raw = raw[7:]
             if raw.startswith("```"):
@@ -354,14 +479,24 @@ Respond ONLY with valid JSON in this exact structure:
             if raw.endswith("```"):
                 raw = raw[:-3]
             report = json.loads(raw.strip())
+            report["grade"] = calc_grade
         except Exception:
-            report = {
-                "grade": "B+",
-                "examiner_verdict": "Satisfactory conceptual baseline. Work on numerical parameters and derivation steps.",
-                "strengths": ["Answered with confidence", "Good grasp of primary law"],
-                "revision_topics": ["Key formula derivations", "Practical apparatus limitations", "Unit conversions"],
-                "bluff_analysis": "Fair clarity."
-            }
+            if calc_grade == "F":
+                report = {
+                    "grade": "F",
+                    "examiner_verdict": "Student submitted incoherent or unprepared answers. Failed to demonstrate understanding of basic laboratory concepts.",
+                    "strengths": ["None observed - student was unprepared"],
+                    "revision_topics": ["Fundamental experiment theory", "Primary equations & derivations", "Basic apparatus definitions"],
+                    "bluff_analysis": "Severe hand-waving and incoherent responses detected."
+                }
+            else:
+                report = {
+                    "grade": calc_grade,
+                    "examiner_verdict": "Satisfactory conceptual baseline. Work on numerical parameters and derivation steps.",
+                    "strengths": ["Answered key conceptual question"],
+                    "revision_topics": ["Key formula derivations", "Practical apparatus limitations", "Unit conversions"],
+                    "bluff_analysis": "Acceptable clarity."
+                }
 
         concluding_audio_text = f"That concludes your viva. Your total score is {final_marks} out of 25. Check your detailed feedback sheet."
         audio_b64 = synthesize_speech(concluding_audio_text, voice_name=persona["voice"], lang="en-IN")

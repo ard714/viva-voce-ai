@@ -21,8 +21,9 @@ Students memorize notes silently, but **freeze** when an external examiner asks 
 1. **Lab Notes / Syllabus Ingestion**: Input any experiment aim, apparatus notes, or formula derivations (or pick a 1-click preset for EE, CS, Mech, or Pharmacy).
 2. **Examiner Spoken Questioning**: The examiner speaks aloud with Indian professor voice personas via **Bulbul v4 Flash**.
 3. **Student Spoken Answers**: Students speak naturally into the microphone. **Saaras v4** transcribes code-mixed speech with Indian accents without phonetic degradation.
-4. **Adversarial Evaluation & Bluff Buster**: **Sarvam-105B** evaluates conceptual depth, catches missing units/formulas, detects hand-waving/bluffing, and drills into weak spots.
-5. **Scorecard & Regional Translation**: Generates an official score out of 25 (Theory, Intuition, Precision), revision recommendations, and translates the entire feedback into **22 Indian languages** via **Sarvam-Translate**.
+4. **Adversarial Evaluation & Bluff Buster**: Evaluates conceptual depth, catches missing units/formulas, and programmatically detects gibberish or keyboard mashing (scoring 0/10 with zero-credit penalties).
+5. **Dynamic Interrogation & Follow-up Grilling**: If the examiner is unsatisfied with a hand-waving or evasive response, they dynamically ask more questions (extending the viva up to 6 rounds) until the student proves understanding or fails.
+6. **Scorecard & Regional Translation**: Generates an official score out of 25 (Theory, Intuition, Precision), revision recommendations, and translates the entire feedback into **22 Indian languages** via **Sarvam-Translate**.
 
 ---
 

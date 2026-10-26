@@ -1,6 +1,7 @@
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
 from fastapi.testclient import TestClient
 from app import app
-import sys
 
 client = TestClient(app)
 
@@ -37,14 +38,27 @@ print(f"   Status: {ans_res['status']}")
 print(f"   Score: {ans_res.get('score')}/10, Bluff Detected: {ans_res.get('bluff_detected')}")
 print(f"   Q2 Followup: {ans_res.get('next_question_text')}")
 
-print("4. Testing POST /api/answer (Round 2 - Final)...")
+print("4. Testing POST /api/answer (Round 2)...")
 ans_data_2 = {
     "session_id": session_id,
-    "answer_text": "Slew rate is the maximum rate of change of output voltage with time, typically 0.5 V per microsecond for IC 741."
+    "answer_text": "Slew rate is the maximum rate of change of output voltage with time, typically 0.5 V per microsecond for IC 741 due to compensation capacitor charging limits."
 }
 res = client.post("/api/answer", data=ans_data_2)
 assert res.status_code == 200, f"Answer 2 failed: {res.text}"
 final_res = res.json()
+
+# Handle dynamic continuation if examiner is still not fully satisfied
+round_count = 2
+while final_res["status"] == "ongoing" and round_count < 6:
+    round_count += 1
+    print(f"   Examiner unsatisfied, grilling deeper on Q{round_count}: {final_res.get('next_question_text')}")
+    res = client.post("/api/answer", data={
+        "session_id": session_id,
+        "answer_text": "The inverting gain formula is Av = -Rf / Rin with 180 degree phase shift, and CMRR is differential gain divided by common mode gain."
+    })
+    assert res.status_code == 200
+    final_res = res.json()
+
 print(f"   Final Status: {final_res['status']}")
 print(f"   Final Marks: {final_res['final_marks']}/25")
 print(f"   Grade: {final_res['report']['grade']}")

@@ -405,9 +405,12 @@ async function submitAnswer() {
       // Show intermediate feedback
       showIntermediateFeedback(data);
 
-      // Update question
+      // Update question & total counter (may increase dynamically if examiner is unsatisfied)
       currentQNum.textContent = data.question_number;
-      updateProgressBar(data.question_number, data.total_questions);
+      if (data.total_questions) {
+        totalQNum.textContent = data.total_questions;
+      }
+      updateProgressBar(data.question_number, data.total_questions || 3);
       questionText.textContent = data.next_question_text;
       currentAudioBase64 = data.audio_base64;
 
@@ -431,15 +434,49 @@ async function submitAnswer() {
 }
 
 function showIntermediateFeedback(data) {
-  feedbackBadge.textContent = `Round Score: ${data.score}/10`;
+  // Score indicator
+  if (data.score <= 1) {
+    feedbackBadge.textContent = `Round Score: ${data.score}/10 (Zero Credit / Gibberish)`;
+    feedbackBadge.style.background = "#ef4444";
+    feedbackBadge.style.color = "#ffffff";
+  } else if (data.score <= 5) {
+    feedbackBadge.textContent = `Round Score: ${data.score}/10 (Incomplete / Needs Work)`;
+    feedbackBadge.style.background = "#f59e0b";
+    feedbackBadge.style.color = "#000000";
+  } else {
+    feedbackBadge.textContent = `Round Score: ${data.score}/10 (Good)`;
+    feedbackBadge.style.background = "var(--emerald-accent)";
+    feedbackBadge.style.color = "#000000";
+  }
+
   feedbackText.textContent = data.last_feedback;
 
+  // Bluff indicator
   if (data.bluff_detected) {
-    bluffChip.textContent = "⚠️ Hand-waving / Bluff Detected";
+    bluffChip.textContent = "⚠️ Hand-waving / Gibberish Detected";
     bluffChip.classList.add("warning");
   } else {
     bluffChip.textContent = "✓ Direct Answer";
     bluffChip.classList.remove("warning");
+  }
+
+  // Examiner Satisfaction indicator (Dynamic Interrogation)
+  let satisfactionChip = document.getElementById("satisfaction-chip");
+  if (!satisfactionChip) {
+    satisfactionChip = document.createElement("div");
+    satisfactionChip.id = "satisfaction-chip";
+    satisfactionChip.className = "bluff-chip";
+    intermediateFeedback.appendChild(satisfactionChip);
+  }
+
+  if (data.is_satisfied === false) {
+    satisfactionChip.textContent = "❌ Examiner Unsatisfied — Drills Deeper";
+    satisfactionChip.classList.add("warning");
+    intermediateFeedback.classList.add("unsatisfied");
+  } else {
+    satisfactionChip.textContent = "✅ Examiner Satisfied";
+    satisfactionChip.classList.remove("warning");
+    intermediateFeedback.classList.remove("unsatisfied");
   }
 
   intermediateFeedback.classList.remove("hidden");
@@ -478,7 +515,10 @@ function renderScorecard(data) {
     item.innerHTML = `
       <div class="round-head">
         <span>Question ${ev.question_number}</span>
-        <span class="round-score">Score: ${ev.score}/10</span>
+        <span>
+          ${ev.is_satisfied ? '<span style="color:#10b981;font-size:11px;margin-right:8px;">[Satisfied]</span>' : '<span style="color:#ef4444;font-size:11px;margin-right:8px;">[Unsatisfied - Grilling]</span>'}
+          <span class="round-score" style="${ev.score <= 1 ? 'background:#ef4444;color:#fff;' : (ev.score <= 5 ? 'background:#f59e0b;color:#000;' : '')}">Score: ${ev.score}/10</span>
+        </span>
       </div>
       <div class="round-q">Q: ${ev.question}</div>
       <div class="round-ans">Student: "${ev.student_answer}"</div>

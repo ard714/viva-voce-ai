@@ -100,7 +100,20 @@ To ensure every component is functioning with 100% reliability, test these 5 dim
   2. Click **Submit Answer to Examiner**.
   3. Look at the recognized transcript: Saaras v4 should accurately capture technical terms (`virtual ground`, `open loop gain`, `inverting terminal`) alongside Hindi verbs (`form hota hai`, `assume karta hai`).
 
-### Test 3: The Bluff Buster (Hand-waving Detection)
+### Test 3: The Bluff Buster & Zero-Tolerance Gibberish Detection
+- **What to do**: Submit pure gibberish (e.g. `"asdfghjkl zxcvbnm qwertyuiop"`, `"idk lol"`, or repeated words).
+- **What to verify**:
+  - Round score is strictly **0/10** (never 15/25).
+  - The UI highlights `⚠️ Hand-waving / Gibberish Detected`.
+  - Examiner status shows `❌ Examiner Unsatisfied — Drills Deeper`.
+  - Final scorecard caps marks at $\le 2.0/25$ with Grade **F**.
+
+### Test 3B: Dynamic Examiner Grilling (Unsatisfied Follow-ups)
+- **What to do**: Provide evasive, partial, or weak answers at the nominal last question (Question 3).
+- **What to verify**:
+  - The examiner does **not** terminate prematurely!
+  - The examiner says *"I am not satisfied with your explanation. Let me drill deeper:"* and asks Question 4, Question 5, etc. (up to 6 questions).
+  - The question counter updates dynamically (e.g. `Question 4 of 4`).
 - **What to do**: Intentionally give a vague, evasive answer without formulas or principles:
   > *"Sir, this experiment is very important in modern electronics and we use it everywhere in industry to amplify signals nicely."*
 - **What to check**:
