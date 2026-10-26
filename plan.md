@@ -1,4 +1,4 @@
-# Viva Voce: AI Oral Examiner
+# VivaPrep AI: AI Oral Examiner
 ### Project Plan & Technical Specification
 
 > **Mission**: Build an AI-powered adversarial oral examiner that helps Indian college students prepare for practical and laboratory viva exams by testing spoken understanding, probing weak answers, and handling code-mixed (Hinglish/regional) speech.

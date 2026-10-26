@@ -1,4 +1,4 @@
-# ??? Viva Voce AI — The Adversarial Academic Oral Examiner
+# ???? VivaPrep AI — The Adversarial Academic Oral Examiner
 
 > **Built with Sarvam AI's Full Indic Stack** — Sarvam-105B (Reasoning), Bulbul v4 Flash (TTS), Saaras v4 (Code-mixed ASR), and Sarvam-Translate (22 Languages).
 
@@ -9,13 +9,13 @@
 
 ---
 
-## ?? The Problem
+## ??? The Problem
 In Indian universities (VTU, AKTU, Anna University, Mumbai University, polytechnics, pharmacy, and science colleges), **practical lab vivas carry up to 40% of lab marks**.
 
 Students memorize notes silently, but **freeze** when an external examiner asks questions aloud. Furthermore, students think in their mother tongue and answer in **code-mixed Hinglish / Tanglish** (e.g., *"Sir, actually jab frequency increase hoti hai, capacitor short behave karta hai"*). Traditional interview bots fail because they only understand corporate English and don't simulate the adversarial grilling of an external university professor.
 
-## ?? The Solution
-**Viva Voce AI** is an adversarial oral examiner powered by Sarvam AI:
+## ??? The Solution
+**VivaPrep AI** is an adversarial oral examiner powered by Sarvam AI:
 1. **Pasted Lab Notes / Syllabus**: Input any experiment aim, apparatus notes, or formula derivations.
 2. **Examiner Spoken Questioning**: The examiner speaks aloud with Indian professor voice personas via **Bulbul v4 Flash**.
 3. **Student Spoken Answers**: Students speak naturally into the microphone. **Saaras v4** transcribes code-mixed speech with Indian accents.
@@ -24,7 +24,7 @@ Students memorize notes silently, but **freeze** when an external examiner asks 
 
 ---
 
-## ??? Architecture & Sarvam AI Resource Mapping
+## ???? Architecture & Sarvam AI Resource Mapping
 
 ```
 +---------------------------------------------------------------------------------+
@@ -64,14 +64,14 @@ Students memorize notes silently, but **freeze** when an external examiner asks 
 
 ---
 
-## ????? Examiner Personas
+## ??????? Examiner Personas
 - **Prof. R.K. Sharma (Strict External Examiner)**: Formal, adversarial, catches bluffing, cuts off rambling, demands exact formulas and units.
 - **Dr. Ananya Sen (Supportive Internal Guide)**: Patient, constructive, gives hints when you freeze, reinforces core physics intuition.
 - **Dr. Kabir Rao (Rapid-Fire Formula Examiner)**: Fast-paced 15-second timer per question testing constants, pinouts, and circuit laws.
 
 ---
 
-## ?? Quickstart & Local Run
+## ??? Quickstart & Local Run
 
 ### 1. Clone Repository
 ```bash
@@ -98,7 +98,7 @@ Open [http://localhost:8000](http://localhost:8000) in your browser.
 
 ---
 
-## ?? Deployment
+## ??? Deployment
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ard714/Sarvam_vivavoce)
 
@@ -117,5 +117,5 @@ docker run -p 8000:8000 -e SARVAM_API_KEY=your_key Sarvam_vivavoce
 
 ---
 
-## ?? License
+## ??? License
 MIT License. Crafted for Indian Higher Education.

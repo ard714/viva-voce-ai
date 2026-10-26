@@ -19,7 +19,7 @@ if not API_KEY:
 
 client = SarvamAI(api_subscription_key=API_KEY)
 
-app = FastAPI(title="Viva Voce AI", description="Academic Oral Examination AI Powered by Sarvam AI")
+app = FastAPI(title="VivaPrep AI", description="Academic Oral Examination AI Powered by Sarvam AI")
 
 app.add_middleware(
     CORSMiddleware,
@@ -39,14 +39,14 @@ PERSONAS = {
         "title": "Strict External Examiner",
         "voice": "ratan_hi_documentary",
         "tone": "adversarial, precise, catches bluffing, demands physical intuition and exact formulas, intolerant of vague theory recitation.",
-        "avatar": "?????"
+        "avatar": "???????"
     },
     "friendly_guide": {
         "name": "Dr. Ananya Sen",
         "title": "Supportive Internal Guide",
         "voice": "shreya",
         "tone": "encouraging, patient, breaks down complex doubts, offers hints when the student struggles, checks core concepts.",
-        "avatar": "?????"
+        "avatar": "???????"
     },
     "rapid_fire": {
         "name": "Dr. Kabir Rao",

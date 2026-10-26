@@ -1,4 +1,4 @@
-// Viva Voce AI - Client Application Logic
+// VivaPrep AI - Client Application Logic
 
 let currentSessionId = null;
 let currentPersona = null;
@@ -92,7 +92,7 @@ function renderPresets() {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = `preset-btn ${idx === 0 ? "active" : ""}`;
-    btn.innerHTML = `<span>??</span> <span>${p.subject.split("(")[0].trim()}</span>`;
+    btn.innerHTML = `<span>???</span> <span>${p.subject.split("(")[0].trim()}</span>`;
     btn.onclick = () => selectPreset(p, btn);
     presetContainer.appendChild(btn);
   });
@@ -435,7 +435,7 @@ function showIntermediateFeedback(data) {
   feedbackText.textContent = data.last_feedback;
 
   if (data.bluff_detected) {
-    bluffChip.textContent = "?? Hand-waving / Bluff Detected";
+    bluffChip.textContent = "??? Hand-waving / Bluff Detected";
     bluffChip.classList.add("warning");
   } else {
     bluffChip.textContent = "? Direct Answer";
