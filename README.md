@@ -75,8 +75,8 @@ Students memorize notes silently, but **freeze** when an external examiner asks 
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/ard714/viva-voce-ai.git
-cd viva-voce-ai
+git clone https://github.com/ard714/Sarvam_vivavoce.git
+cd Sarvam_vivavoce
 ```
 
 ### 2. Install Dependencies
@@ -100,7 +100,7 @@ Open [http://localhost:8000](http://localhost:8000) in your browser.
 
 ## ?? Deployment
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ard714/viva-voce-ai)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ard714/Sarvam_vivavoce)
 
 
 ### Deploy to Render
@@ -111,8 +111,8 @@ Open [http://localhost:8000](http://localhost:8000) in your browser.
 
 ### Deploy with Docker
 ```bash
-docker build -t viva-voce-ai .
-docker run -p 8000:8000 -e SARVAM_API_KEY=your_key viva-voce-ai
+docker build -t Sarvam_vivavoce .
+docker run -p 8000:8000 -e SARVAM_API_KEY=your_key Sarvam_vivavoce
 ```
 
 ---
